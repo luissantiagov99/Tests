@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messi vs Ronaldo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --messi: #1a56db;
+      --messi-light: #3b82f6;
+      --messi-bg: #eff6ff;
+      --ronaldo: #dc2626;
+      --ronaldo-light: #ef4444;
+      --ronaldo-bg: #fef2f2;
+      --dark: #111827;
+      --gray: #6b7280;
+      --light-gray: #f3f4f6;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ---- HERO ---- */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: linear-gradient(135deg, #0c1929 0%, #1a1a2e 50%, #2d0a0a 100%);
+      padding: 2rem 1rem;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(26,86,219,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 50%, rgba(220,38,38,0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero-title {
+      text-align: center;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+
+    .hero-title h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .hero-title .messi-name { color: var(--messi-light); }
+    .hero-title .vs { color: #9ca3af; font-weight: 400; margin: 0 .3em; font-size: 0.7em; }
+    .hero-title .ronaldo-name { color: var(--ronaldo-light); }
+
+    .hero-subtitle {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    /* ---- STAT CARDS ---- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      width: 100%;
+      max-width: 900px;
+      position: relative;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .stat-card .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #9ca3af;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-row:last-child { margin-bottom: 0; }
+
+    .stat-row .player-label {
+      width: 60px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-row .player-label.messi { color: var(--messi-light); text-align: right; }
+    .stat-row .player-label.ronaldo { color: var(--ronaldo-light); text-align: right; }
+
+    .stat-row .value {
+      font-size: 2rem;
+      font-weight: 900;
+      line-height: 1;
+      min-width: 80px;
+    }
+
+    .stat-row .value.messi { color: var(--messi-light); }
+    .stat-row .value.ronaldo { color: var(--ronaldo-light); }
+
+    .stat-bar-container {
+      flex: 1;
+      max-width: 120px;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .stat-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1.5s ease;
+      width: 0;
+    }
+
+    .stat-bar.messi { background: var(--messi-light); }
+    .stat-bar.ronaldo { background: var(--ronaldo-light); }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: #6b7280;
+      font-size: 0.75rem;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-hint svg {
+      width: 24px;
+      height: 24px;
+      stroke: #6b7280;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    /* ---- SEASON SECTION ---- */
+    .season-section {
+      background: #0f172a;
+      padding: 5rem 1rem;
+    }
+
+    .season-section h2 {
+      text-align: center;
+      font-size: clamp(1.5rem, 3vw, 2.2rem);
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .season-section .section-sub {
+      text-align: center;
+      color: #6b7280;
+      margin-bottom: 3rem;
+      font-size: 0.9rem;
+    }
+
+    .toggle-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .toggle-btn {
+      padding: 0.5rem 1.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: transparent;
+      color: #9ca3af;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .toggle-btn.active {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    .chart-wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      overflow-x: auto;
+    }
+
+    .chart-container {
+      min-width: 800px;
+      padding: 0 1rem;
+    }
+
+    /* Bar chart */
+    .chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 320px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding-bottom: 0;
+      position: relative;
+    }
+
+    .chart-group {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      position: relative;
+      height: 100%;
+    }
+
+    .bar {
+      width: 16px;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.8s ease;
+      position: relative;
+      cursor: pointer;
+      min-height: 2px;
+    }
+
+    .bar.messi { background: var(--messi-light); }
+    .bar.ronaldo { background: var(--ronaldo-light); }
+
+    .bar:hover { opacity: 0.85; }
+
+    .bar .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1e293b;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .bar:hover .tooltip { display: block; }
+
+    .chart-labels {
+      display: flex;
+      gap: 2px;
+      margin-top: 0.5rem;
+    }
+
+    .chart-labels span {
+      flex: 1;
+      text-align: center;
+      font-size: 0.65rem;
+      color: #6b7280;
+      font-weight: 600;
+    }
+
+    .chart-legend {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .chart-legend .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.messi { background: var(--messi-light); }
+    .legend-dot.ronaldo { background: var(--ronaldo-light); }
+
+    /* ---- SEASON TABLE ---- */
+    .table-wrapper {
+      max-width: 1000px;
+      margin: 3rem auto 0;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead th {
+      padding: 0.75rem 1rem;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 1.5px;
+      color: #6b7280;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+
+    thead th:first-child { text-align: left; }
+    thead th.messi-col { color: var(--messi-light); }
+    thead th.ronaldo-col { color: var(--ronaldo-light); }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover { background: rgba(255,255,255,0.03); }
+
+    tbody td {
+      padding: 0.6rem 1rem;
+      text-align: center;
+      color: #d1d5db;
+    }
+
+    tbody td:first-child {
+      text-align: left;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    tbody td.highlight-messi { color: var(--messi-light); font-weight: 700; }
+    tbody td.highlight-ronaldo { color: var(--ronaldo-light); font-weight: 700; }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #4b5563;
+      font-size: 0.75rem;
+      background: #0b1120;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+        max-width: 360px;
+      }
+      .stat-row .value { font-size: 1.5rem; min-width: 55px; }
+      .chart { height: 220px; }
+      .bar { width: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO: Career Stats -->
+  <section class="hero">
+    <div class="hero-title">
+      <h1>
+        <span class="messi-name">Messi</span>
+        <span class="vs">vs</span>
+        <span class="ronaldo-name">Ronaldo</span>
+      </h1>
+    </div>
+    <p class="hero-subtitle">Estadísticas de carrera completas &middot; Actualizado 2024/25</p>
+
+    <div class="stats-grid" id="statsGrid">
+      <!-- Goals -->
+      <div class="stat-card">
+        <div class="label">Goles</div>
+        <div class="stat-row">
+          <span class="player-label messi">Messi</span>
+          <span class="value messi" data-target="838">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="player-label ronaldo">CR7</span>
+          <span class="value ronaldo" data-target="906">0</span>
+        </div>
+      </div>
+      <!-- Assists -->
+      <div class="stat-card">
+        <div class="label">Asistencias</div>
+        <div class="stat-row">
+          <span class="player-label messi">Messi</span>
+          <span class="value messi" data-target="374">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="player-label ronaldo">CR7</span>
+          <span class="value ronaldo" data-target="233">0</span>
+        </div>
+      </div>
+      <!-- Matches -->
+      <div class="stat-card">
+        <div class="label">Partidos</div>
+        <div class="stat-row">
+          <span class="player-label messi">Messi</span>
+          <span class="value messi" data-target="1068">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="player-label ronaldo">CR7</span>
+          <span class="value ronaldo" data-target="1146">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>Estadísticas por temporada</span>
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- SEASON-BY-SEASON -->
+  <section class="season-section">
+    <h2>Estadísticas por Temporada</h2>
+    <p class="section-sub">Goles y asistencias en clubes &middot; Temporadas 2004/05 – 2024/25</p>
+
+    <div class="toggle-bar">
+      <button class="toggle-btn active" data-mode="goals">Goles</button>
+      <button class="toggle-btn" data-mode="assists">Asistencias</button>
+    </div>
+
+    <div class="chart-wrapper">
+      <div class="chart-container">
+        <div class="chart" id="chart"></div>
+        <div class="chart-labels" id="chartLabels"></div>
+      </div>
+    </div>
+
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-dot messi"></div>Messi</div>
+      <div class="legend-item"><div class="legend-dot ronaldo"></div>Ronaldo</div>
+    </div>
+
+    <!-- Detailed table -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Temporada</th>
+            <th class="messi-col">Goles (M)</th>
+            <th class="messi-col">Asist. (M)</th>
+            <th class="ronaldo-col">Goles (CR7)</th>
+            <th class="ronaldo-col">Asist. (CR7)</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Datos aproximados recopilados de fuentes públicas. Última actualización: marzo 2025.
+  </footer>
+
+  <script>
+    // ---- DATA ----
+    const seasons = [
+      { season: '04/05', mGoals: 1,  mAssists: 0,  rGoals: 6,  rAssists: 4  },
+      { season: '05/06', mGoals: 8,  mAssists: 3,  rGoals: 12, rAssists: 5  },
+      { season: '06/07', mGoals: 17, mAssists: 4,  rGoals: 23, rAssists: 13 },
+      { season: '07/08', mGoals: 16, mAssists: 13, rGoals: 42, rAssists: 8  },
+      { season: '08/09', mGoals: 38, mAssists: 18, rGoals: 26, rAssists: 7  },
+      { season: '09/10', mGoals: 47, mAssists: 11, rGoals: 33, rAssists: 10 },
+      { season: '10/11', mGoals: 53, mAssists: 24, rGoals: 53, rAssists: 13 },
+      { season: '11/12', mGoals: 73, mAssists: 29, rGoals: 60, rAssists: 15 },
+      { season: '12/13', mGoals: 60, mAssists: 15, rGoals: 55, rAssists: 13 },
+      { season: '13/14', mGoals: 41, mAssists: 14, rGoals: 51, rAssists: 16 },
+      { season: '14/15', mGoals: 58, mAssists: 27, rGoals: 61, rAssists: 18 },
+      { season: '15/16', mGoals: 41, mAssists: 23, rGoals: 51, rAssists: 14 },
+      { season: '16/17', mGoals: 54, mAssists: 16, rGoals: 42, rAssists: 12 },
+      { season: '17/18', mGoals: 45, mAssists: 18, rGoals: 44, rAssists: 8  },
+      { season: '18/19', mGoals: 51, mAssists: 22, rGoals: 28, rAssists: 10 },
+      { season: '19/20', mGoals: 31, mAssists: 27, rGoals: 37, rAssists: 7  },
+      { season: '20/21', mGoals: 38, mAssists: 14, rGoals: 36, rAssists: 4  },
+      { season: '21/22', mGoals: 11, mAssists: 15, rGoals: 24, rAssists: 3  },
+      { season: '22/23', mGoals: 32, mAssists: 21, rGoals: 14, rAssists: 3  },
+      { season: '23/24', mGoals: 23, mAssists: 18, rGoals: 35, rAssists: 8  },
+      { season: '24/25', mGoals: 20, mAssists: 10, rGoals: 16, rAssists: 4  },
+    ];
+
+    // ---- COUNTER ANIMATION ----
+    function animateCounters() {
+      document.querySelectorAll('.value[data-target]').forEach(el => {
+        const target = parseInt(el.dataset.target);
+        const duration = 2000;
+        const start = performance.now();
+        function tick(now) {
+          const elapsed = now - start;
+          const progress = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          el.textContent = Math.round(target * eased);
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      });
+    }
+
+    // Observe hero
+    const heroObs = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) { animateCounters(); heroObs.disconnect(); }
+    }, { threshold: 0.3 });
+    heroObs.observe(document.getElementById('statsGrid'));
+
+    // ---- CHART ----
+    let currentMode = 'goals';
+
+    function getMax(mode) {
+      return Math.max(...seasons.map(s =>
+        Math.max(mode === 'goals' ? s.mGoals : s.mAssists, mode === 'goals' ? s.rGoals : s.rAssists)
+      ));
+    }
+
+    function buildChart(mode) {
+      const chart = document.getElementById('chart');
+      const labels = document.getElementById('chartLabels');
+      chart.innerHTML = '';
+      labels.innerHTML = '';
+      const max = getMax(mode);
+
+      seasons.forEach(s => {
+        const mVal = mode === 'goals' ? s.mGoals : s.mAssists;
+        const rVal = mode === 'goals' ? s.rGoals : s.rAssists;
+
+        const group = document.createElement('div');
+        group.className = 'chart-group';
+
+        const mBar = document.createElement('div');
+        mBar.className = 'bar messi';
+        mBar.innerHTML = `<span class="tooltip">${mVal}</span>`;
+
+        const rBar = document.createElement('div');
+        rBar.className = 'bar ronaldo';
+        rBar.innerHTML = `<span class="tooltip">${rVal}</span>`;
+
+        group.appendChild(mBar);
+        group.appendChild(rBar);
+        chart.appendChild(group);
+
+        // Animate after append
+        requestAnimationFrame(() => {
+          mBar.style.height = (mVal / max * 100) + '%';
+          rBar.style.height = (rVal / max * 100) + '%';
+        });
+
+        const label = document.createElement('span');
+        label.textContent = s.season;
+        labels.appendChild(label);
+      });
+    }
+
+    // Toggle buttons
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        buildChart(currentMode);
+      });
+    });
+
+    // ---- TABLE ----
+    function buildTable() {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+      seasons.forEach(s => {
+        const tr = document.createElement('tr');
+        const mGClass = s.mGoals >= s.rGoals ? 'highlight-messi' : '';
+        const rGClass = s.rGoals > s.mGoals ? 'highlight-ronaldo' : '';
+        const mAClass = s.mAssists >= s.rAssists ? 'highlight-messi' : '';
+        const rAClass = s.rAssists > s.mAssists ? 'highlight-ronaldo' : '';
+        tr.innerHTML = `
+          <td>${s.season}</td>
+          <td class="${mGClass}">${s.mGoals}</td>
+          <td class="${mAClass}">${s.mAssists}</td>
+          <td class="${rGClass}">${s.rGoals}</td>
+          <td class="${rAClass}">${s.rAssists}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Init
+    buildChart('goals');
+    buildTable();
+  </script>
+</body>
+</html>
