@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Watched Matches{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Watched Matches</h1>
+    <p>Matches you're monitoring for ticket availability</p>
+</div>
+
+{% if watched_matches %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ watched_matches | length }} match(es) being monitored</h2>
+        <form action="{{ url_for('check_now') }}" method="post">
+            <button type="submit" class="btn btn-accent btn-sm">Check All Now</button>
+        </form>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Match</th>
+                    <th>Round</th>
+                    <th>Venue</th>
+                    <th>Date</th>
+                    <th>Ticket Status</th>
+                    <th>Last Checked</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in watched_matches %}
+                <tr>
+                    <td><code>{{ item.match.match_id }}</code></td>
+                    <td><strong>{{ item.match.home_team }} vs {{ item.match.away_team }}</strong></td>
+                    <td><span class="badge badge-group">{{ item.match.group_or_round }}</span></td>
+                    <td>{{ item.match.venue }}, {{ item.match.city }}</td>
+                    <td>{{ item.match.kickoff_str }}</td>
+                    <td>
+                        {% if item.status is none %}
+                            <span class="badge badge-pending">Not checked yet</span>
+                        {% elif item.status.available %}
+                            <span class="badge badge-available">Available!</span>
+                            {% if item.status.price_range %}
+                                <br><small style="color: var(--text-muted);">{{ item.status.price_range }}</small>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge badge-unavailable">Not available</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.status %}
+                            {{ item.status.checked_at.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.status and item.status.ticket_url %}
+                            <a href="{{ item.status.ticket_url }}" target="_blank" class="btn btn-accent btn-sm">Buy</a>
+                        {% endif %}
+                        <form action="{{ url_for('unwatch_match', match_id=item.match.match_id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Unwatch</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 3rem;">
+    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;">
+        No matches being watched yet.
+    </p>
+    <a href="{{ url_for('matches_page') }}" class="btn btn-accent">Browse Matches</a>
+</div>
+{% endif %}
+{% endblock %}

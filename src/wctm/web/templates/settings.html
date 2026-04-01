@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Settings</h1>
+    <p>Configure monitoring intervals, notifications, and scraper options</p>
+</div>
+
+<form method="post" action="{{ url_for('save_settings') }}">
+    <!-- Polling -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Polling</h2>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Check interval (minutes)</label>
+                <input type="number" name="interval_minutes" value="{{ config.polling.interval_minutes }}" min="5" max="120">
+                <div class="hint">How often to check for ticket availability (minimum 5 minutes)</div>
+            </div>
+            <div class="form-group">
+                <label>Jitter (seconds)</label>
+                <input type="number" name="jitter_seconds" value="{{ config.polling.jitter_seconds }}" min="0" max="120">
+                <div class="hint">Random delay added to each check to avoid detection</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scraper -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Scraper</h2>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Scraper type</label>
+                <select name="scraper_type">
+                    <option value="browser" {{ 'selected' if config.scraper.type == 'browser' }}>Browser (Playwright)</option>
+                    <option value="api" {{ 'selected' if config.scraper.type == 'api' }}>API (Direct HTTP)</option>
+                </select>
+                <div class="hint">Browser mode is more reliable but uses more resources</div>
+            </div>
+            <div class="form-group">
+                <label>Timeout (seconds)</label>
+                <input type="number" name="timeout_seconds" value="{{ config.scraper.timeout_seconds }}" min="10" max="120">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="toggle">
+                <input type="checkbox" name="headless" {{ 'checked' if config.scraper.headless }}>
+                <span>Headless mode (run browser without visible window)</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Desktop Notifications -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Desktop Notifications</h2>
+        </div>
+        <div class="form-group">
+            <label class="toggle">
+                <input type="checkbox" name="desktop_enabled" {{ 'checked' if config.notifications.desktop.enabled }}>
+                <span>Enable desktop notifications</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Email Notifications -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Email Notifications</h2>
+        </div>
+        <div class="form-group">
+            <label class="toggle">
+                <input type="checkbox" name="email_enabled" {{ 'checked' if config.notifications.email.enabled }}>
+                <span>Enable email notifications</span>
+            </label>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>SMTP Host</label>
+                <input type="text" name="smtp_host" value="{{ config.notifications.email.host }}">
+            </div>
+            <div class="form-group">
+                <label>SMTP Port</label>
+                <input type="number" name="smtp_port" value="{{ config.notifications.email.port }}">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>SMTP User (email)</label>
+                <input type="email" name="smtp_user" value="{{ config.notifications.email.user }}" placeholder="your-email@gmail.com">
+            </div>
+            <div class="form-group">
+                <label>SMTP Password</label>
+                <input type="password" name="smtp_password" placeholder="App password or leave empty for env var">
+                <div class="hint">Leave empty to use the WCTM_SMTP_PASSWORD environment variable</div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Recipient Email</label>
+            <input type="email" name="recipient" value="{{ config.notifications.email.recipient }}" placeholder="recipient@example.com">
+        </div>
+    </div>
+
+    <div style="text-align: right;">
+        <button type="submit" class="btn btn-accent">Save Settings</button>
+    </div>
+</form>
+{% endblock %}

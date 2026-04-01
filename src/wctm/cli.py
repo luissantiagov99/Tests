@@ -294,6 +294,16 @@ def cmd_setup(args: argparse.Namespace, config: AppConfig) -> None:
     print(f"\nConfiguration saved to {DEFAULT_CONFIG_PATH}")
 
 
+def cmd_web(args: argparse.Namespace, config: AppConfig) -> None:
+    """Launch the web dashboard."""
+    from wctm.web.app import create_app
+
+    app = create_app(config)
+    print(f"\n  World Cup Ticket Monitor - Web Dashboard")
+    print(f"  Open http://localhost:{args.port} in your browser\n")
+    app.run(host=args.host, port=args.port, debug=args.debug)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="wctm",
@@ -342,6 +352,13 @@ def build_parser() -> argparse.ArgumentParser:
     # setup
     p_setup = subparsers.add_parser("setup", help="Interactive first-time setup")
     p_setup.set_defaults(func=cmd_setup)
+
+    # web
+    p_web = subparsers.add_parser("web", help="Launch the web dashboard")
+    p_web.add_argument("--host", default="0.0.0.0", help="Host to bind (default: 0.0.0.0)")
+    p_web.add_argument("--port", "-p", type=int, default=5000, help="Port (default: 5000)")
+    p_web.add_argument("--debug", action="store_true", help="Enable debug mode")
+    p_web.set_defaults(func=cmd_web)
 
     return parser
 

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Matches{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>FIFA World Cup 2026 Matches</h1>
+    <p>Browse all 104 matches and add them to your watch list</p>
+</div>
+
+<!-- Filters -->
+<div class="card">
+    <form method="get" action="{{ url_for('matches_page') }}">
+        <div class="filters">
+            <div class="filter-group">
+                <label>Round / Group</label>
+                <select name="group">
+                    <option value="">All Rounds</option>
+                    {% for g in groups %}
+                        <option value="{{ g }}" {{ 'selected' if filter_group == g }}>{{ g }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>City</label>
+                <select name="city">
+                    <option value="">All Cities</option>
+                    {% for c in cities %}
+                        <option value="{{ c }}" {{ 'selected' if filter_city == c }}>{{ c }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Team</label>
+                <input type="text" name="team" placeholder="e.g. Mexico, USA" value="{{ filter_team }}">
+            </div>
+            <div class="filter-group" style="align-self: flex-end;">
+                <button type="submit" class="btn btn-accent btn-sm">Filter</button>
+                <a href="{{ url_for('matches_page') }}" class="btn btn-outline btn-sm" style="margin-left: 4px;">Clear</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Results -->
+<div class="card">
+    <div class="card-header">
+        <h2>{{ matches | length }} match(es)</h2>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Round</th>
+                    <th>Home</th>
+                    <th>Away</th>
+                    <th>Venue</th>
+                    <th>City</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in matches %}
+                <tr>
+                    <td><code>{{ m.match_id }}</code></td>
+                    <td><span class="badge badge-group">{{ m.group_or_round }}</span></td>
+                    <td><strong>{{ m.home_team }}</strong></td>
+                    <td><strong>{{ m.away_team }}</strong></td>
+                    <td>{{ m.venue }}</td>
+                    <td>{{ m.city }}</td>
+                    <td>{{ m.kickoff_str }}</td>
+                    <td>
+                        {% if m.match_id in watched_ids %}
+                            <form action="{{ url_for('unwatch_match', match_id=m.match_id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Unwatch</button>
+                            </form>
+                        {% else %}
+                            <form action="{{ url_for('watch_match', match_id=m.match_id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-success btn-sm">Watch</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

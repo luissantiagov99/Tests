@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p>Overview of your World Cup 2026 ticket monitoring</p>
+</div>
+
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_matches }}</div>
+        <div class="stat-label">Total Matches</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ watched_count }}</div>
+        <div class="stat-label">Watching</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ available_count }}</div>
+        <div class="stat-label">Tickets Available</div>
+    </div>
+    <div class="stat-card">
+        <div class="monitor-status">
+            <span class="status-dot {{ 'active' if monitor_running else '' }}"></span>
+            <span>{{ 'Active' if monitor_running else 'Stopped' }}</span>
+        </div>
+        <div class="stat-label">Monitor Status</div>
+    </div>
+</div>
+
+<!-- Monitor controls -->
+<div class="card">
+    <div class="card-header">
+        <h2>Monitor Control</h2>
+        <div>
+            {% if monitor_running %}
+                <form action="{{ url_for('monitor_stop') }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger btn-sm">Stop Monitor</button>
+                </form>
+            {% else %}
+                <form action="{{ url_for('monitor_start') }}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-success btn-sm">Start Monitor</button>
+                </form>
+            {% endif %}
+            <form action="{{ url_for('check_now') }}" method="post" style="display:inline; margin-left: 8px;">
+                <button type="submit" class="btn btn-accent btn-sm">Check Now</button>
+            </form>
+        </div>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.85rem;">
+        {% if monitor_running %}
+            Checking every {{ interval }} minutes. The monitor will notify you when tickets become available.
+        {% else %}
+            Start the monitor to automatically check for ticket availability on your watched matches.
+        {% endif %}
+    </p>
+</div>
+
+<!-- Watched matches quick view -->
+{% if watched_matches %}
+<div class="card">
+    <div class="card-header">
+        <h2>Watched Matches</h2>
+        <a href="{{ url_for('matches_page') }}" class="btn btn-outline btn-sm">Browse All Matches</a>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Match</th>
+                    <th>Round</th>
+                    <th>Venue</th>
+                    <th>Date</th>
+                    <th>Ticket Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in watched_matches %}
+                <tr>
+                    <td><code>{{ item.match.match_id }}</code></td>
+                    <td><strong>{{ item.match.home_team }} vs {{ item.match.away_team }}</strong></td>
+                    <td><span class="badge badge-group">{{ item.match.group_or_round }}</span></td>
+                    <td>{{ item.match.venue }}, {{ item.match.city }}</td>
+                    <td>{{ item.match.kickoff_str }}</td>
+                    <td>
+                        {% if item.status is none %}
+                            <span class="badge badge-pending">Not checked</span>
+                        {% elif item.status.available %}
+                            <span class="badge badge-available">Available</span>
+                        {% else %}
+                            <span class="badge badge-unavailable">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form action="{{ url_for('unwatch_match', match_id=item.match.match_id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm">Unwatch</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 3rem;">
+    <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 1rem;">
+        You're not watching any matches yet.
+    </p>
+    <a href="{{ url_for('matches_page') }}" class="btn btn-accent">Browse Matches</a>
+</div>
+{% endif %}
+{% endblock %}
