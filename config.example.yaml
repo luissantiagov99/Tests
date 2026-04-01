@@ -1,0 +1,26 @@
+# World Cup Ticket Monitor - Configuration
+# Copy this file to ~/.config/wctm/config.yaml and edit as needed.
+
+polling:
+  interval_minutes: 10    # How often to check for tickets (minimum: 5)
+  jitter_seconds: 30      # Random delay added to avoid detection
+
+scraper:
+  type: browser           # "browser" (Playwright) or "api" (direct HTTP)
+  headless: true          # Run browser in headless mode
+  timeout_seconds: 30     # Max time to wait for page load
+
+notifications:
+  email:
+    enabled: false
+    smtp_host: smtp.gmail.com
+    smtp_port: 587
+    smtp_user: your-email@gmail.com
+    # Use WCTM_SMTP_PASSWORD env variable instead of storing password here
+    smtp_password: ""
+    recipient: your-email@gmail.com
+  desktop:
+    enabled: true
+
+# Database path (default: ~/.config/wctm/wctm.db)
+# db_path: /custom/path/to/wctm.db
